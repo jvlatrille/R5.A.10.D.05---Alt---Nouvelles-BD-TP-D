@@ -5,7 +5,7 @@ db.Articles.aggregate([
         // D'abord épiceries
         $match: { Categorie: "Epicerie" } }, 
     {
-        // On récup (récup) la valorisation 
+        // On récup (calcul) la valorisation 
         $project: {
             Reference: 1,
             Descriptif: 1,
