@@ -1,5 +1,11 @@
 use("nodenot_bd1") ;
 
-db.Commandes.find({
-    $where: "this.DateCommande.getMonth() == 8 && this.DateCommande.getDay() == 1"
+let mois = {$month: "$DateCommande"};
+let jour = {$dayOfWeek: "$DateCommande"};
+
+db.getCollection("Commandes").find({
+    $and: [
+        {expr: {$eq: [mois, 9]}},
+        {expr: {$in: [jour, 2]}}
+    ]
 });
