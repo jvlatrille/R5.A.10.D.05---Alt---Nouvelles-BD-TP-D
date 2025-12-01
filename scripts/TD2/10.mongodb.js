@@ -1,21 +1,6 @@
 use("nodenot_bd1");
 
-db.Articles.aggregate([
-    { 
-        // D'abord épiceries
-        $match: { Categorie: "Epicerie" } }, 
-    {
-        // On récup (calcul) la valorisation 
-        $project: {
-            Reference: 1,
-            Descriptif: 1,
-            Valorisation: { $multiply: ["$CoutHT", "$QteStock"] }
-        }
-    },
-    { 
-        // On fait le match avec le résultat de la valorisation
-        $match: { Valorisation: { $gt: 40 } } },
-    { 
-        // On en affiche 3
-        $limit: 3 }
-]);
+db.Articles.find({ 
+    Categorie: "Epicerie",
+    $where: "this.CoutHT * this.QteStock > 40"
+}).limit(3);

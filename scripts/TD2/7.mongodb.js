@@ -1,19 +1,5 @@
 use("nodenot_bd1") ;
 
-db.Commandes.aggregate([
-    {
-        // On récup les dates
-        $project: {
-            doc: "$$ROOT",
-            mois: { $month: "$DateCommande" },
-            jourSemaine: { $dayOfWeek: "$DateCommande" }
-        }
-    },
-    {
-        // On trie
-        $match: {
-            mois: 9,
-            jourSemaine: 2 
-        }
-    }
-]);
+db.Commandes.find({
+    $where: "this.DateCommande.getMonth() == 8 && this.DateCommande.getDay() == 1"
+});
