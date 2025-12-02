@@ -1,7 +1,8 @@
 use("nodenot_bd1") ;
 
+let longueurDescriptif = { $strLenCP: "$Descriptif" };
 
-db.Articles.find({ Descriptif: { $regex: /^.{41,}$/ } })
-   .forEach( article => {
-       print(article.Descriptif + " (" + article.Descriptif.length + " caractères)");
-   });
+db.getCollection("Articles").find(
+    { $expr: { $gt: [longueurDescriptif, 40] } },
+    { Descriptif: 1, "taille": longueurDescriptif, _id: 0 }
+);
