@@ -9,6 +9,7 @@ db.getCollection("Articles").aggregate([
   },
   {
     $project: {
+      _id:0,
       "LibelleTVA": "$_id",
       "nombre": "$nombre"
     }

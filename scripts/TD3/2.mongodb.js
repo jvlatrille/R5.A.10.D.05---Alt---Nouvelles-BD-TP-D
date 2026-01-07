@@ -1,20 +1,14 @@
 use("nodenot_bd1");
 
-db.getCollection("Articles").aggregate([
+db.Articles.aggregate([
   {
-    $match: { "Tva.TauxTVA": { $gt: 0.5 } }
+    $match: { "Tva.TauxTVA": { $gt: 0.05 } }
   },
   {
     $group: {
-      "_id": "$Tva.LibelleTVA",
-      "nombre": { $sum: 1 }
+      _id: "$Tva.LibelleTVA",
+      nombre: { $sum: 1 }
     }
   },
-  {
-    $project: {
-      "LibelleTVA": "$_id",
-      "nombre": "$nombre"
-    }
-  },
-  { $sort: { "nombre": -1 } }
+  { $sort: { nombre: -1 } }
 ]);
