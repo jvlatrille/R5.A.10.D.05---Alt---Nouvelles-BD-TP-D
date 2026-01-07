@@ -14,3 +14,26 @@ db.Articles.aggregate([
     }
   }
 ]);
+
+
+db.Articles.aggregate([
+  {
+    "$set": {
+      "Tarif_TTC": {
+        "$multiply": [
+          "$PrixHT",
+          { "$add": ["$Tva.TauxTVA", 1] }
+        ]
+      }
+    }
+  },
+  {
+    "$project": {
+      "_id": 0,
+      "Descriptif": 1,
+      "PrixHT": 1,
+      "Tva": 1,
+      "Tarif_TTC": 1
+    }
+  }
+]);
