@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Ultimate CheatSheet</title>
+    <style>
+        :root {
+            /* Palette Dark Modern */
+            --bg-body: #121212;
+            --bg-content: #1e1e1e;
+            --bg-card: #252526;
+            --bg-hover: #2d2d2d;
+            
+            --accent: #00ED64; /* Mongo Green */
+            --accent-dim: rgba(0, 237, 100, 0.1);
+            
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            
+            --border: #333;
+            
+            /* Syntax Highlighting */
+            --sh-bg: #111;
+            --sh-key: #569cd6;
+            --sh-str: #ce9178;
+            --sh-num: #b5cea8;
+            --sh-kwd: #c586c0;
+            --sh-op: #d4d4d4;
+            --sh-cmt: #6a9955;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* --- SIDEBAR DE NAVIGATION (Gauche, Fixe) --- */
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-body);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--bg-hover);
+            color: var(--accent);
+        }
+
+        /* --- CONTENU PRINCIPAL (Centré) --- */
+        .main-wrapper {
+            margin-left: 250px; /* Espace pour la sidebar */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px; /* Largeur max confortable pour la lecture */
+        }
+
+        /* Header de page */
+        header {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 500px;
+            margin: 20px auto 0;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-content);
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+
+        #search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+
+        /* --- SECTIONS & CARTES --- */
+        .section-container {
+            margin-bottom: 60px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .card {
+            background-color: var(--bg-content);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            /* Petit effet d'ombre subtil */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        /* --- BLOCS DE CODE --- */
+        .code-wrapper {
+            position: relative;
+            background-color: var(--sh-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--accent);
+            color: #000;
+        }
+
+        /* Syntaxe Coloration */
+        .kwd { color: var(--sh-kwd); }
+        .str { color: var(--sh-str); }
+        .num { color: var(--sh-num); }
+        .key { color: var(--sh-key); }
+        .cmt { color: var(--sh-cmt); font-style: italic; }
+        .op  { color: var(--sh-op); }
+
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none; /* Simplification pour mobile : on cache la sidebar */
+                /* Idéalement ajouter un menu burger ici */
+            }
+            .main-wrapper {
+                margin-left: 0;
+                padding: 20px;
+            }
+            h1 { font-size: 2rem; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION GAUCHE -->
+    <aside class="sidebar">
+        <div class="brand">
+            <span>🍃 MongoDB</span>
+        </div>
+        <nav class="nav-links" id="nav-container">
+            <!-- Rempli par JS -->
+        </nav>
+    </aside>
+
+    <!-- CONTENU CENTRAL -->
+    <div class="main-wrapper">
+        <div class="container">
+            
+            <header>
+                <h1>MongoDB Cheat</h1>
+                <p style="color: var(--text-secondary);">Ceci est une doc super officielle.</p>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="🔍 Rechercher une commande, un opérateur, un mot-clé...">
+                </div>
+            </header>
+
+            <div id="content-area">
+                <!-- Rempli par JS -->
+            </div>
+
+            <footer style="text-align: center; margin-top: 80px; color: #555; font-size: 0.9rem;">
+                <p>Généré pour révision R5.A.10 - Version Étendue</p>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        // --- DONNÉES ENRICHIES ---
+        const data = [
+            {
+                id: "theorie",
+                title: "0. Théorie & Concepts",
+                items: [
+                    { title: "JSON vs BSON", desc: "MongoDB parle BSON (Binary JSON) en interne. BSON gère plus de types (Date, ObjectId, BinData) et est optimisé pour le stockage.", code: "// JSON (Lisible)\n{ \"nom\": \"Dupont\", \"age\": 25 }\n\n// BSON (Binaire)\n// Plus léger, traversable rapidement, types riches." },
+                    { title: "CAP Theorem & BASE", desc: "MongoDB est un système CP (Cohérence + Partition Tolerance) par défaut. Il suit le modèle BASE (Basically Available, Soft state, Eventual consistency) contrairement à l'ACID strict des SGBDR.", code: "// Priorité à la disponibilité et à la partition.\n// La cohérence peut être 'éventuelle' en cluster." },
+                    { title: "Modélisation : Embedding vs Referencing", desc: "Faut-il imbriquer ou lier ?", code: "// Embedding (Imbrication) -> Performance lecture\n{ Nom: 'User', Adresse: { Ville: 'Pau' } }\n\n// Referencing (Référence) -> Normalisation\n{ Nom: 'User', AdresseId: ObjectId('...') }" }
+                ]
+            },
+            {
+                id: "bases",
+                title: "1. Les Bases (Shell & CRUD)",
+                items: [
+                    { title: "Navigation", desc: "Commandes de base du shell.", code: "use ma_base       // Changer de DB\nshow collections  // Voir les tables\ndb.getName()      // Nom DB actuelle\ndb.dropDatabase() // Supprimer la DB (!)" },
+                    { title: "Insertion (Create)", desc: "Ajouter des documents.", code: "db.Produits.insertOne({ Nom: 'Pomme', Prix: 2 })\ndb.Produits.insertMany([\n  { Nom: 'Poire', Prix: 3 },\n  { Nom: 'Banane', Prix: 1.5 }\n])" },
+                    { title: "Compter & Distinct", desc: "Analyser le contenu.", code: "db.Coll.countDocuments({ Stock: { $gt: 0 } })\ndb.Coll.distinct('Categorie') // Liste valeurs uniques" }
+                ]
+            },
+            {
+                id: "find",
+                title: "2. Requêtes (Find) - Opérateurs",
+                items: [
+                    { title: "Comparaisons", desc: "Égalité, Supérieur, Inférieur.", code: "{ Prix: { $gte: 100 } }   // >= 100\n{ Stock: { $lt: 5 } }     // < 5\n{ Etat: { $ne: 'HS' } }   // != 'HS'" },
+                    { title: "Logique (AND, OR, NOR)", desc: "Combiner des conditions.", code: "// OR : Soit A, soit B\n{ $or: [ { Prix: { $lt: 20 } }, { Promo: true } ] }\n\n// NOR : Ni A, ni B\n{ $nor: [ { Cat: 'A' }, { Cat: 'B' } ] }\n\n// AND : Implicite ou explicite\n{ $and: [ { A: 1 }, { B: 1 } ] }" },
+                    { title: "Regex (Texte)", desc: "Recherche de motifs (insensible casse).", code: "{ Description: { $regex: 'pain', $options: 'i' } }\n// Commence par 'Dimanche'\n{ Jour: { $regex: /^dimanche$/i } }" },
+                    { title: "Modulo ($mod)", desc: "Vérifier la divisibilité.", code: "// Quantité multiple de 10\n{ QteStock: { $mod: [10, 0] } }" },
+                    { title: "Expression ($expr)", desc: "Comparer deux champs DANS le même document.", code: "// Articles où PrixVente < Cout * 1.1\n{ $expr: { $lt: [ '$PrixHT', { $multiply: ['$CoutHT', 1.1] } ] } }" },
+                    { title: "JavaScript ($where)", desc: "Lent, mais puissant. Exécution de JS.", code: "{ $where: \"this.Prix > this.Cout * 2\" }" }
+                ]
+            },
+            {
+                id: "arrays",
+                title: "3. Les Tableaux (Arrays)",
+                items: [
+                    { title: "Contient UN élément ($in)", desc: "Valeur présente dans une liste.", code: "{ Categorie: { $in: ['Epicerie', 'Boissons'] } }" },
+                    { title: "Contient TOUT ($all)", desc: "Tous les éléments requis sont présents.", code: "{ Sports: { $all: ['Tennis', 'Foot'] } }" },
+                    { title: "Taille ($size)", desc: "Nombre exact d'éléments.", code: "{ Tags: { $size: 2 } }" },
+                    { title: "Élément Complexe ($elemMatch)", desc: "CRITIQUE : Valider plusieurs critères sur un MÊME sous-objet.", code: "db.Commandes.find({\n  Lignes: { \n    $elemMatch: { \n      Quantite: { $gt: 50 }, \n      Prix: { $lt: 20 } \n    }\n  }\n})" },
+                    { title: "Existence ($exists)", desc: "Vérifier si un champ ou un index existe.", code: "// Le premier élément (index 0) existe\n{ 'Sports.0': { $exists: true } }\n// Champ absent\n{ Email: { $exists: false } }" }
+                ]
+            },
+            {
+                id: "update",
+                title: "4. Mises à Jour (Update)",
+                items: [
+                    { title: "Opérateurs Champs", desc: "Modifier, Incrémenter, Renommer.", code: "db.Coll.updateMany(\n  { _id: 1 },\n  {\n    $set: { Statut: 'OK' },       // Modifier\n    $unset: { OldField: 1 },      // Supprimer champ\n    $inc: { Vues: 1 },            // Incrémenter (+1)\n    $mul: { Prix: 1.2 }           // Multiplier\n  }\n)" },
+                    { title: "Opérateurs Tableaux", desc: "Ajouter, Retirer.", code: "{\n  $push: { Tags: 'Nouveau' },   // Ajouter à la fin\n  $pull: { Tags: 'Vieux' },     // Retirer valeur\n  $pop: { Tags: 1 },            // Retirer dernier (1) ou premier (-1)\n  $addToSet: { Tags: 'Unique' } // Ajouter si existe pas\n}" }
+                ]
+            },
+            {
+                id: "agg",
+                title: "5. Agrégation (Pipeline)",
+                items: [
+                    { title: "Structure Classique", desc: "Match > Unwind > Group > Project.", code: "db.Ventes.aggregate([\n  { $match: { Annee: 2023 } },\n  { $unwind: '$Articles' },\n  { $group: {\n      _id: '$Articles.Type',\n      CA: { $sum: '$Articles.Prix' }\n  }},\n  { $sort: { CA: -1 } }\n])" },
+                    { title: "Calculs ($project / $set)", desc: "Maths, Arrondis, Conversions.", code: "{ \n  $set: {\n    // Prix TTC arrondi à 2 décimales\n    PrixTTC: { \n      $round: [ \n        { $multiply: ['$PrixHT', { $add: [1, '$TauxTVA'] }] }, \n        2 \n      ]\n    }\n  }\n}" },
+                    { title: "Dates ($year, $month...)", desc: "Extraire des infos de date.", code: "{ \n  Mois: { $month: '$DateCommande' },\n  JourSemaine: { $dayOfWeek: '$DateCommande' } \n}" },
+                    { title: "Strings ($strLenCP...)", desc: "Manipuler du texte.", code: "{ \n  LongueurDesc: { $strLenCP: '$Descriptif' },\n  Majuscule: { $toUpper: '$Nom' }\n}" },
+                    { title: "Jointures ($lookup)", desc: "Lier deux collections.", code: "{ \n  $lookup: {\n    from: 'Clients',\n    localField: 'ClientId',\n    foreignField: '_id',\n    as: 'InfoClient'\n  }\n}" },
+                    { title: "Anti-Join (Non-correspondance)", desc: "Trouver ce qui n'a PAS de correspondance (Ex: Articles jamais commandés).", code: "[\n  { $lookup: { ... as: 'Apparitions' } },\n  { $match: { 'Apparitions': { $size: 0 } } } // Tableau vide = Pas de lien\n]" },
+                    { title: "Ensembles ($setUnion)", desc: "Fusionner des tableaux sans doublons.", code: "{ \n  $addFields: {\n    TousSports: { $setUnion: ['$SportsEte', '$SportsHiver'] }\n  }\n}" },
+                    { title: "Export ($out)", desc: "Sauvegarder le résultat dans une nouvelle collection.", code: "{ $out: 'MaNouvelleCollection' } // Doit être la dernière étape" }
+                ]
+            }
+        ];
+
+        // --- MOTEUR DE RENDU ---
+        const navContainer = document.getElementById('nav-container');
+        const contentArea = document.getElementById('content-area');
+        const searchInput = document.getElementById('search-input');
+
+        // Fonction de coloration syntaxique
+        function syntaxHighlight(code) {
+            return code
+                .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/\/\/.*$/gm, '<span class="cmt">$&</span>')
+                .replace(/('.*?')|(".*?")/g, '<span class="str">$&</span>')
+                .replace(/\b(\d+(\.\d+)?)\b/g, '<span class="num">$&</span>')
+                .replace(/(\$\w+)/g, '<span class="kwd">$&</span>')
+                .replace(/\b(db|find|aggregate|use|show|insertMany|insertOne|updateMany|countDocuments|distinct)\b/g, '<span class="key">$&</span>');
+        }
+
+        function render() {
+            // 1. Navigation
+            navContainer.innerHTML = data.map(section => 
+                `<a class="nav-item" href="#${section.id}">${section.title}</a>`
+            ).join('');
+
+            // 2. Contenu
+            contentArea.innerHTML = "";
+            const filter = searchInput.value.toLowerCase();
+
+            data.forEach(section => {
+                // Filtrage
+                const items = section.items.filter(item => 
+                    item.title.toLowerCase().includes(filter) || 
+                    item.desc.toLowerCase().includes(filter) ||
+                    item.code.toLowerCase().includes(filter)
+                );
+
+                if (items.length === 0) return;
+
+                // Création Section HTML
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section-container';
+                sectionDiv.id = section.id;
+                
+                const titleHTML = `
+                    <div class="section-header">
+                        <h2 class="section-title">${section.title}</h2>
+                    </div>
+                `;
+
+                const cardsHTML = items.map(item => `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">${item.title}</div>
+                        </div>
+                        <div class="card-desc">${item.desc}</div>
+                        <div class="code-wrapper">
+                            <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+                            <pre><code>${syntaxHighlight(item.code)}</code></pre>
+                        </div>
+                    </div>
+                `).join('');
+
+                sectionDiv.innerHTML = titleHTML + cardsHTML;
+                contentArea.appendChild(sectionDiv);
+            });
+        }
+
+        function copyCode(btn) {
+            const code = btn.nextElementSibling.innerText;
+            navigator.clipboard.writeText(code);
+            const originalText = btn.innerText;
+            btn.innerText = "Copié !";
+            btn.style.color = "#00ED64";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.color = "";
+            }, 2000);
+        }
+
+        // --- INIT & EVENTS ---
+        searchInput.addEventListener('input', render);
+        render();
+
+        // Smooth scroll pour les ancres
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    
+                    // Update active state
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
