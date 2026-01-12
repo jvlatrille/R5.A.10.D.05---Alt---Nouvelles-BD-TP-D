@@ -2,14 +2,30 @@
 
 use('nodenot_bd2');
 
-db.Sportifs.find({ IdSportifConseiller: { $exists: true } }).forEach(function (sportif) {
+db.Sportifs.aggregate([
+    {
+        $match: { IdSportifConseiller: { $exists: true } }
+    },
 
-    // Pour chaque sportif, on cherche son conseiller (findOne renvoie un seul document)
-    var conseiller = db.Sportifs.findOne({ IdSportif: sportif.IdSportifConseiller });
+    {
+        $lookup: {
+            from: "Sportifs",
+            localField: "IdSportifConseiller",
+            foreignField: "IdSportif",
+            as: "InfoConseiller"
+        }
+    },
 
-    // Si on a trouvé le conseiller, on affiche les deux noms
-    if (conseiller) {
-        print("Sportif : " + sportif.Nom + " " + sportif.Prenom +
-            " | Conseiller : " + conseiller.Nom + " " + conseiller.Prenom);
+    {
+        $unwind: "$InfoConseiller"
+    },
+    {
+        $project: {
+            _id: 0,
+            NomSportif: "$Nom",
+            PrenomSportif: "$Prenom",
+            NomConseiller: "$InfoConseiller.Nom",
+            PrenomConseiller: "$InfoConseiller.Prenom"
+        }
     }
-});
+]);

@@ -4,17 +4,20 @@ use('nodenot_bd2');
 
 db.Gymnases.aggregate([
     {
-        $unwind: "$Seances" // On décompose le tableau des séances
+        $unwind: "$Seances"
     },
     {
         $match: {
-            "Seances.Libelle": { $regex: /^Hand ?ball$/i } // On récupére les séances de handball
+            "Seances.Libelle": { $regex: /^Hand ?ball$/i }
         }
     },
     {
         $group: {
-            _id: "$Seances.IdSportifEntraineur", // Par id d'entraineur
+            _id: {
+                Entraineur: "$Seances.IdSportifEntraineur",
+                Jour: "$Seances.Jour"
+            },
             NombreSeances: { $sum: 1 }
         }
-    }
+    },
 ]);

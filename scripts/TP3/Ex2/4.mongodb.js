@@ -12,7 +12,7 @@ db.Gymnases.aggregate([
     // On récupère les IDs uniques des entraineurs
     { $group: { _id: "$Seances.IdSportifEntraineur" } },
 
-    // 4. On fait la jointure avec la collection Sportifs pour avoir les noms
+    // On fait la jointure avec la collection Sportifs pour avoir les noms
     {
         $lookup: {
             from: "Sportifs",
@@ -22,13 +22,13 @@ db.Gymnases.aggregate([
         }
     },
 
-    // 5. On nettoie l'affichage
     { $unwind: "$InfosEntraineur" },
     {
         $project: {
             _id: 0,
             Nom: "$InfosEntraineur.Nom",
-            Prenom: "$InfosEntraineur.Prenom"
+            Prenom: "$InfosEntraineur.Prenom",
+            Ville: 1
         }
     }
 ]);
