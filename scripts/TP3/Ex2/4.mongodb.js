@@ -13,7 +13,6 @@ db.Gymnases.aggregate([
     {
         $group: {
             _id: "$Seances.IdSportifEntraineur",
-            // AJOUT OBLIGATOIRE ICI : On sauvegarde la ville pour l'étape d'après
             Ville: { $first: "$Ville" }
         }
     },
