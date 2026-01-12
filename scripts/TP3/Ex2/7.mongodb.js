@@ -27,7 +27,6 @@ db.Gymnases.aggregate([
         $sort: { "_id.Gymnase": 1, "_id.Jour": 1 }
     },
 
-    // Mise en forme finale
     {
         $project: {
             _id: 0,
