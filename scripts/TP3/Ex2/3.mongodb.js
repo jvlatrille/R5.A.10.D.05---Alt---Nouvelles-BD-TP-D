@@ -15,6 +15,6 @@ db.Gymnases.aggregate([
         }
     },
     {
-        $out: { db: "nodenot_bd2", coll: "Gymnases" }
+        $out: { db: "bdEtu_jvlatrille", coll: "Gymnases" }
     }
 ]);

@@ -10,7 +10,13 @@ db.Gymnases.aggregate([
     { $unwind: "$Seances" },
 
     // On récupère les IDs uniques des entraineurs
-    { $group: { _id: "$Seances.IdSportifEntraineur" } },
+    {
+        $group: {
+            _id: "$Seances.IdSportifEntraineur",
+            // AJOUT OBLIGATOIRE ICI : On sauvegarde la ville pour l'étape d'après
+            Ville: { $first: "$Ville" }
+        }
+    },
 
     // On fait la jointure avec la collection Sportifs pour avoir les noms
     {
